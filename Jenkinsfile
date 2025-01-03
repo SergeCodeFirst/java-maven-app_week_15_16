@@ -1,3 +1,5 @@
+#!/usr/bin/env groovy
+
 pipeline {
     agent any
     tools {
@@ -38,27 +40,21 @@ pipeline {
                 }
             }
         }
-        stage('deploy') {
+
+        stage("deploy") {
+            environment {
+                AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
+                AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_secret_access_key')
+                APP_NAME = 'java-maven-app'
+            }
             steps {
-                script{
-                    echo 'Deploying docker image...'
-                    echo 'Deployment complete'
+                script {
+                    echo 'deploying the application...'
+                    sh 'envsubst < kubernetes/deployment.yaml | kubectl apply -f -'
+                    sh 'envsubst < kubernetes/service.yaml | kubectl apply -f -'
                 }
             }
         }
-
-        // stage("deploy") {
-        //     environment {
-        //         AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
-        //         AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_secret_access_key')
-        //     }
-        //     steps {
-        //         script {
-        //             echo 'deploying the application...'
-        //             sh 'kubectl create deployment nginx-deployment --image=nginx'
-        //         }
-        //     }
-        // }
 
         stage('Commit version Update') {
             steps{
