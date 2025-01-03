@@ -1,4 +1,4 @@
-// add auto trigger test 2
+// add auto trigger test 3
 def gv
 
 pipeline {   
